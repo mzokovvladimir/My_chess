@@ -1,31 +1,31 @@
 from abc import abstractmethod, ABCMeta
 
 
-THINKING_DEPTH = 4
+THINKING_DEPTH: int = 4
 
 
 class Color:
-    BLACK = 1
-    WHITE = 2
-    EMPTY = 0
+    BLACK: int = 1
+    WHITE: int = 2
+    EMPTY: int = 0
 
     @classmethod
-    def invert(cls, color):
+    def invert(cls, color: int) -> int:
         if color == cls.EMPTY:
             return color
         return cls.BLACK if color == cls.WHITE else cls.WHITE
 
 
 class Chessboard:
-    SPACE_COLOR_WHITE = 229
-    SPACE_COLOR_BLACK = 0
+    SPACE_COLOR_WHITE: int = 229
+    SPACE_COLOR_BLACK: int = 0
 
     board = None
 
     def fill(self):
-        board = self.board = [[EmptyCell() for x in range(8)] for y in range(8)]
-        black = Color.BLACK
-        white = Color.WHITE
+        board: list[list[]] = self.board = [[EmptyCell() for x in range(8)] for y in range(8)]
+        black: int = Color.BLACK
+        white: int = Color.WHITE
         # simple start position on the board
         board[1][0] = ChessmanPawn(black)
         board[1][1] = ChessmanPawn(black)
@@ -93,13 +93,13 @@ class Chessboard:
 
 
 class EmptyCell:
-    CODE = 'empty'
-    color = Color.EMPTY
+    CODE: str = 'empty'
+    color: int = Color.EMPTY
 
-    def get_moves(self, board, x, y):
+    def get_moves(self, board, x: int, y: int):
         raise Exception('Error!')
 
-    def rate(self, board, x, y):
+    def rate(self, board, x: int, y: int):
         raise Exception('Error!')
 
     def __str__(self):
@@ -120,11 +120,11 @@ class Chessman:
         self.color = color
 
     @abstractmethod
-    def get_moves(self, board, x, y):
+    def get_moves(self, board, x: int, y: int) -> list:
         return []
 
     @abstractmethod
-    def rate(self, board, x, y):
+    def rate(self, board, x: int, y: int) -> int:
         return 0
 
     def enemy_color(self):
@@ -135,13 +135,13 @@ class Chessman:
 
 
 class ChessmanPawn(Chessman):
-    CODE = 'pawn'
-    VALUE = 10
-    WHITE_IMG = '♙'
-    BLACK_IMG = '♟'
+    CODE: str = 'pawn'
+    VALUE: int = 10
+    WHITE_IMG: str = '♙'
+    BLACK_IMG: str = '♟'
 
-    def get_moves(self, board, x, y):
-        moves = []
+    def get_moves(self, board, x: int, y: int):
+        moves: list = []
         y += -1 if self.color == Color.WHITE else 1
         if y == -1 or y == 8:
             return moves
@@ -162,13 +162,13 @@ class ChessmanPawn(Chessman):
 
 
 class ChessmanKing(Chessman):
-    CODE = 'king'
-    VALUE = 0
-    WHITE_IMG = '♔'
-    BLACK_IMG = '♚'
+    CODE: str = 'king'
+    VALUE: int = 0
+    WHITE_IMG: str = '♔'
+    BLACK_IMG: str = '♚'
 
-    def get_moves(self, board, x, y):
-        moves = []
+    def get_moves(self, board, x: int, y: int) -> list:
+        moves: list = []
         for j in (y - 1, y, y + 1):
             for i in (x - 1, x, x + 1):
                 if i == x and j == y:
@@ -177,18 +177,18 @@ class ChessmanKing(Chessman):
                     moves.append([i, j])
         return moves
 
-    def rate(self, board, x, y):
+    def rate(self, board, x: int, y: int):
         return self.VALUE
 
 
 class ChessmanRook(Chessman):
-    CODE = 'rook'
-    VALUE = 50
-    WHITE_IMG = '♖'
-    BLACK_IMG = '♜'
+    CODE: str = 'rook'
+    VALUE: int = 50
+    WHITE_IMG: str = '♖'
+    BLACK_IMG: str = '♜'
 
-    def get_moves(self, board, x, y):
-        moves = []
+    def get_moves(self, board, x: int, y: int) -> list:
+        moves: list = []
         for j in (-1, 1):
             i = x + j
             while 0 <= i <= 7:
@@ -221,17 +221,17 @@ class AI:
         self.enemy_color = Color.invert(my_color)
         self.depth = depth
 
-    def do(self, board, depth=0):
+    def do(self, board, depth=0) -> int:
         enemy = bool(depth % 2)
         color = self.enemy_color if enemy else self.my_color
         if depth == self.depth:
             return board.rate(self.my_color) - board.rate(self.enemy_color) * 1.1
-        rates = []
+        rates: list = []
         for y in range(8):
             for x in range(8):
                 if board.get_color(x, y) != color:
                     continue
-                xy_from = [x, y]
+                xy_from: list[int] = [x, y]
                 for xy_to in board.get_chessman_moves(x, y):
                     new_board = board.clone()
                     target_cell = new_board.move_chessman(xy_from, xy_to)
@@ -268,7 +268,7 @@ class Game:
         self.clear_screen()
         print(cb)
 
-        color = Color.WHITE
+        color: int = Color.WHITE
         for i in range(22):
             max_rate = -9999
             xy_from = xy_to = None
